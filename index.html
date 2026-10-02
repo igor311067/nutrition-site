@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2b8a5e">
+    <title>Калькулятор калорий</title>
+    <style>
+
+.site-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: #1f3d2f;
+    color: #fff;
+}
+.site-brand .logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #56cc9d, #2b8a5e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.site-brand .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #56cc9d;
+    flex-shrink: 0;
+}
+
+.promo {
+    display: block;
+    text-align: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #ffb347, #ff8c42);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+html { scroll-behavior: smooth; }
+.promo { text-decoration: none; }
+.quiz-progress { height: 6px; background: #eaf4ef; border-radius: 6px; overflow: hidden; margin-bottom: 14px; }
+.quiz-progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, #56cc9d, #2b8a5e); transition: width 0.25s; }
+.quiz-step { font-size: 12px; font-weight: 700; color: #6a7b8e; text-transform: uppercase; letter-spacing: 0.5px; }
+.quiz-q { font-size: 20px; font-weight: 800; margin: 6px 0 14px; color: #2d3a4b; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-opt {
+    text-align: left; padding: 14px 16px; border: 2px solid #dbe4ee; border-radius: 12px;
+    background: #fbfcfe; font-family: inherit; font-size: 15px; font-weight: 600; color: #2d3a4b; cursor: pointer;
+}
+.quiz-opt:active, .quiz-opt.picked { border-color: #56cc9d; background: #eaf7f1; color: #2b8a5e; }
+.quiz-result h3 { font-size: 20px; font-weight: 800; color: #2b8a5e; margin-bottom: 6px; }
+.quiz-result p { font-size: 15px; margin-bottom: 10px; }
+.quiz-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 16px; }
+.quiz-tag { background: #eaf7f1; color: #2b8a5e; border-radius: 20px; padding: 6px 12px; font-size: 13px; font-weight: 700; }
+.quiz-prize { background: linear-gradient(135deg, #ffb347, #ff8c42); color: #fff; border-radius: 12px; padding: 14px; font-weight: 800; text-align: center; margin-bottom: 12px; }
+.quiz-link { background: none; border: none; color: #6a7b8e; font-family: inherit; font-size: 14px; font-weight: 600; text-decoration: underline; cursor: pointer; margin-top: 4px; }
+
+.recipe { margin-top: 8px; } .recipe summary { cursor: pointer; color: #2b8a5e; font-weight: 700; font-size: 13px; } .recipe p { font-size: 13px; margin-top: 6px; color: #4a5b6e; }
+.ai-status { font-size: 13px; color: #6a7b8e; margin: 8px 0 14px; font-weight: 600; }
+.lead-input { width: 100%; padding: 12px 14px; border: 2px solid #dbe4ee; border-radius: 12px; font-family: inherit; font-size: 16px; background: #fbfcfe; margin-bottom: 10px; -webkit-appearance: none; appearance: none; }
+.lead-input:focus { outline: none; border-color: #56cc9d; }
+.lead-note { font-size: 12px; color: #6a7b8e; margin-top: 8px; }
+.lead-status { font-size: 14px; font-weight: 700; margin-top: 10px; }
+.lead-status.ok { color: #2b8a5e; } .lead-status.err { color: #d9534f; }
+.btn-secondary { background: #fff; color: #2b8a5e; border: 2px solid #56cc9d; box-shadow: none; margin-top: 0; margin-bottom: 8px; }
+.print-only { display: none; }
+@media print {
+    .site-brand, .promo, #screen-form, #screen-quiz, .header, #btn-ai, #ai-status, #btn-save, #save-note, #btn-download, .btn-secondary, .back { display: none !important; }
+    body { background: #fff; padding: 0; }
+    #screen-result { display: block !important; padding: 0; }
+    .card { box-shadow: none; border: 1px solid #e8eef5; margin-top: 12px; }
+    .day { break-inside: avoid; }
+    .print-only { display: block; font-size: 18px; font-weight: 800; color: #2b8a5e; margin-bottom: 4px; }
+    .print-only small { display: block; font-size: 13px; font-weight: 600; color: #4a5b6e; margin-top: 4px; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+.contact-title { font-size: 16px; font-weight: 800; margin: 4px 0 10px; color: #2d3a4b; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.contact-btn { display: block; text-align: center; padding: 14px 8px; border-radius: 12px; color: #fff; font-weight: 800; font-size: 15px; text-decoration: none; font-family: inherit; border: none; cursor: pointer; }
+.contact-btn.mail { background: #6a7b8e; }
+.contact-btn.wa { background: #25d366; }
+.contact-btn.tg { background: #2aabee; }
+.contact-btn.max { background: #7a4dff; }
+.contact-copy { width: 100%; background: #f0f4f9; color: #4a5b6e; margin-bottom: 14px; }
+.contact-hint { font-size: 13px; color: #6a7b8e; margin-bottom: 14px; }
+.site-brand .site-name {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #f3f6fb;
+    color: #2d3a4b;
+    line-height: 1.5;
+    padding-bottom: 24px;
+}
+
+.hidden { display: none !important; }
+
+/* ---------- Header ---------- */
+.header {
+    background: linear-gradient(135deg, #56cc9d, #2b8a5e);
+    padding: 44px 20px 30px;
+    color: #fff;
+    border-radius: 0 0 24px 24px;
+}
+
+.header-small {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 40px 16px 20px;
+}
+
+.header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 6px 0 4px;
+}
+
+.header p { font-size: 15px; opacity: 0.95; }
+
+.badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.back {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 22px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* ---------- Card ---------- */
+.screen { padding: 16px; }
+
+.card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 3px 14px rgba(45,58,75,0.08);
+    margin-top: 16px;
+}
+
+.form-card { padding: 20px; }
+
+#screen-form .card:first-of-type { margin-top: 16px; }
+
+.section-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #2b8a5e;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #eaf4ef;
+}
+
+/* ---------- Form fields ---------- */
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+
+.field label {
+    font-weight: 700;
+    font-size: 14px;
+    color: #4a5b6e;
+}
+
+.field input[type="number"],
+.field select,
+.field textarea {
+    padding: 12px 14px;
+    border: 2px solid #dbe4ee;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 16px;
+    color: #2d3a4b;
+    background: #fbfcfe;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: #56cc9d;
+}
+
+/* ---------- Goal cards ---------- */
+.goal-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.goal-card {
+    padding: 14px 6px;
+    border: 2px solid #dbe4ee;
+    border-radius: 12px;
+    background: #fbfcfe;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4a5b6e;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+}
+
+.goal-card.active {
+    border-color: #56cc9d;
+    background: #eaf7f1;
+    color: #2b8a5e;
+}
+
+/* ---------- Button ---------- */
+.btn {
+    width: 100%;
+    margin-top: 18px;
+    background: linear-gradient(135deg, #56cc9d, #2b8a5e);
+    color: #fff;
+    border: none;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 800;
+    font-family: inherit;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(43,138,94,0.3);
+}
+
+.btn:active { transform: scale(0.98); }
+
+.error {
+    margin-top: 12px;
+    background: #fdecec;
+    color: #d9534f;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ---------- Stats ---------- */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+.stat {
+    background: #f6f8fb;
+    border-radius: 12px;
+    padding: 14px 8px;
+    text-align: center;
+    border: 2px solid #e8eef5;
+}
+
+.stat-primary { background: #eaf7f1; border-color: #56cc9d; }
+
+.stat-value { font-size: 24px; font-weight: 800; color: #2b8a5e; }
+.stat-label { font-size: 12px; color: #6a7b8e; margin-top: 2px; font-weight: 600; }
+
+/* ---------- Macros ---------- */
+.macros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+.macro { border-radius: 12px; padding: 16px 8px; text-align: center; color: #fff; }
+.macro.protein { background: #56cc9d; }
+.macro.fat { background: #ffb347; }
+.macro.carbs { background: #4d9de0; }
+
+.macro-value { font-size: 22px; font-weight: 800; }
+.macro-sub { font-size: 12px; opacity: 0.9; }
+.macro-name { font-weight: 700; margin-top: 6px; font-size: 12px; text-transform: uppercase; }
+
+/* ---------- Menu days ---------- */
+.day {
+    border: 2px solid #e8eef5;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.day summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    cursor: pointer;
+    background: #f6f8fb;
+    font-weight: 700;
+    list-style: none;
+}
+
+.day summary::-webkit-details-marker { display: none; }
+
+.day-num { color: #2b8a5e; }
+.day-total { color: #6a7b8e; font-size: 14px; }
+
+.day-meals { padding: 6px 14px 14px; }
+
+.meal { padding: 12px 0; border-bottom: 1px solid #eef2f8; }
+.meal:last-child { border-bottom: none; }
+
+.meal-label {
+    background: #eaf7f1;
+    color: #2b8a5e;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.meal-name { font-weight: 700; font-size: 15px; }
+
+.meal-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+.chip {
+    background: #f0f4f9;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #5a6b7e;
+}
+
+.chip-kcal { background: #eaf7f1; color: #2b8a5e; font-weight: 700; }
+
+/* ---------- Summary table ---------- */
+.table-wrap { overflow-x: auto; }
+
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.summary-table th {
+    background: #eaf7f1;
+    color: #2b8a5e;
+    padding: 10px 6px;
+    text-align: center;
+    font-weight: 800;
+}
+
+.summary-table td {
+    padding: 10px 6px;
+    border-bottom: 1px solid #eef2f8;
+    text-align: center;
+}
+
+.ok-badge { padding: 2px 10px; border-radius: 20px; font-weight: 700; font-size: 12px; }
+.ok-badge.yes { background: #eaf7f1; color: #2b8a5e; }
+.ok-badge.no { background: #fdecec; color: #d9534f; }
+
+</style>
+</head>
+<body>
+
+<div class="site-brand">
+    <img class="avatar" src="data:image/jpeg;base64,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" alt="Нутрициолог">
+    <div class="site-name">Нутрициолог</div>
+</div>
+<a class="promo" href="#" id="promo-link">🎁 Пройди КВИЗ — получи ПРИЗ</a>
+
+<!-- ================= SCREEN 1: ФОРМА ================= -->
+<section id="screen-form" class="screen">
+
+    <div class="card quiz-teaser" id="quiz">
+        <h2 class="section-title">🎁 Квиз: что вам важно?</h2>
+        <p>4 коротких вопроса помогут понять, какие темы питания вам интересны. В конце вас ждёт приз.</p>
+        <button type="button" class="btn" id="btn-quiz-start">Пройти квиз</button>
+    </div>
+    <header class="header">
+        <span class="badge">Питание</span>
+        <h1>Норма калорий</h1>
+        <p>Заполните данные — получите расчёт и меню на неделю</p>
+    </header>
+
+    <div class="card">
+        <div class="field-row">
+            <div class="field">
+                <label>Пол</label>
+                <select id="gender">
+                    <option value="мужской">Мужской</option>
+                    <option value="женский">Женский</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Возраст (лет)</label>
+                <input type="number" id="age" inputmode="numeric" placeholder="30">
+            </div>
+        </div>
+
+        <div class="field-row">
+            <div class="field">
+                <label>Рост (см)</label>
+                <input type="number" id="height" inputmode="numeric" placeholder="175">
+            </div>
+            <div class="field">
+                <label>Вес (кг)</label>
+                <input type="number" id="weight" inputmode="numeric" placeholder="70">
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Уровень активности</label>
+            <select id="activity">
+                <option value="1.2">Сидячий (1.2)</option>
+                <option value="1.375" selected>Лёгкая (1.375)</option>
+                <option value="1.55">Умеренная (1.55)</option>
+                <option value="1.725">Высокая (1.725)</option>
+                <option value="1.9">Очень высокая (1.9)</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Желаемый результат</label>
+            <div class="goal-group" id="goal-group">
+                <button type="button" class="goal-card active" data-goal="снижение веса">Снижение веса</button>
+                <button type="button" class="goal-card" data-goal="набор массы">Набор массы</button>
+                <button type="button" class="goal-card" data-goal="поддержание веса">Поддержание</button>
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Ограничения / предпочтения</label>
+            <textarea id="restrictions" rows="2"
+                placeholder="Например: не ем молочное, аллергия на орехи, не люблю рыбу"></textarea>
+        </div>
+
+        <button id="btn-calc" class="btn">Рассчитать и составить меню</button>
+        <div id="form-error" class="error hidden"></div>
+    </div>
+</section>
+
+<!-- ================= SCREEN: КВИЗ ================= -->
+<section id="screen-quiz" class="screen hidden">
+    <header class="header header-small">
+        <button id="btn-quiz-back" class="back">←</button>
+        <div>
+            <span class="badge">Квиз</span>
+            <h1>Что вам важно?</h1>
+        </div>
+    </header>
+    <div class="card quiz">
+        <div id="quiz-body"></div>
+    </div>
+</section>
+
+<!-- ================= SCREEN 2: РЕЗУЛЬТАТ ================= -->
+<section id="screen-result" class="screen hidden">
+    <div class="print-only" id="print-head"></div>
+    <header class="header header-small">
+        <button id="btn-back" class="back">←</button>
+        <div>
+            <span class="badge">Ваш результат</span>
+            <h1>Норма и меню</h1>
+        </div>
+    </header>
+
+    <div class="card">
+        <h2 class="section-title">Расчёт калорий</h2>
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="res-bmr">—</div>
+                <div class="stat-label">BMR, ккал</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="res-maintenance">—</div>
+                <div class="stat-label">С активностью</div>
+            </div>
+            <div class="stat stat-primary">
+                <div class="stat-value" id="res-adjusted">—</div>
+                <div class="stat-label">Целевая норма</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">Макронутриенты (БЖУ)</h2>
+        <div class="macros">
+            <div class="macro protein">
+                <div class="macro-value" id="res-protein">—</div>
+                <div class="macro-sub" id="res-protein-kcal"></div>
+                <div class="macro-name">Белки</div>
+            </div>
+            <div class="macro fat">
+                <div class="macro-value" id="res-fat">—</div>
+                <div class="macro-sub" id="res-fat-kcal"></div>
+                <div class="macro-name">Жиры</div>
+            </div>
+            <div class="macro carbs">
+                <div class="macro-value" id="res-carbs">—</div>
+                <div class="macro-sub" id="res-carbs-kcal"></div>
+                <div class="macro-name">Углеводы</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">Меню на 7 дней</h2>
+        <button type="button" class="btn" id="btn-ai">✨ Составить меню с ИИ</button>
+        <div id="ai-status" class="ai-status"></div>
+        <button type="button" class="btn btn-secondary" id="btn-save">⬇️ Скачать меню на неделю</button>
+        <div class="ai-status" id="save-note"></div>
+        
+        <div id="menu-list"></div>
+    </div>
+
+    <div class="card">
+        <h2 class="section-title">Сводная таблица</h2>
+        <div class="table-wrap">
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>День</th><th>ккал</th><th>Б</th><th>Ж</th><th>У</th><th>Норма</th>
+                    </tr>
+                </thead>
+                <tbody id="summary-body"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<script>
+/* Калькулятор калорий и меню на неделю.
+   Версия для автономного приложения (без сервера, без БД). */
+
+// Коэффициенты активности
+var ACTIVITY_LEVELS = {
+    "1.2":   { label: "Сидячий образ жизни", value: 1.2 },
+    "1.375": { label: "Лёгкая активность", value: 1.375 },
+    "1.55":  { label: "Умеренная активность", value: 1.55 },
+    "1.725": { label: "Высокая активность", value: 1.725 },
+    "1.9":   { label: "Очень высокая активность", value: 1.9 }
+};
+
+var GOALS = ["снижение веса", "набор массы", "поддержание веса"];
+
+// Целевое соотношение БЖУ в долях калорий
+var MACRO_TARGETS = {
+    "снижение веса":    { protein: 0.325, fat: 0.275, carbs: 0.40 },
+    "набор массы":      { protein: 0.275, fat: 0.225, carbs: 0.50 },
+    "поддержание веса": { protein: 0.225, fat: 0.275, carbs: 0.50 }
+};
+
+var KCAL_P = 4, KCAL_F = 9, KCAL_C = 4;
+
+function calcBMR(gender, age, height, weight) {
+    var base = 10 * weight + 6.25 * height - 5 * age;
+    if (gender === "мужской") return base + 5;
+    return base - 161;
+}
+
+function calcMacros(targetKcal, goal) {
+    var t = MACRO_TARGETS[goal];
+    var pKcal = targetKcal * t.protein;
+    var fKcal = targetKcal * t.fat;
+    var cKcal = targetKcal * t.carbs;
+    return {
+        protein: Math.round(pKcal / KCAL_P),
+        fat: Math.round(fKcal / KCAL_F),
+        carbs: Math.round(cKcal / KCAL_C),
+        proteinKcal: Math.round(pKcal),
+        fatKcal: Math.round(fKcal),
+        carbsKcal: Math.round(cKcal)
+    };
+}
+
+/* ---------------- База блюд ---------------- */
+var BREAKFASTS = [
+    { name: "Овсяная каша с ягодами и мёдом", weight: 250, kcal: 340, protein: 12, fat: 7, carbs: 58 },
+    { name: "Яичница из 2 яиц с помидорами и зеленью", weight: 200, kcal: 250, protein: 18, fat: 17, carbs: 6 },
+    { name: "Творог 5% с бананом и грецким орехом", weight: 230, kcal: 320, protein: 24, fat: 9, carbs: 38 },
+    { name: "Омлет из 2 яиц с овощами и сыром", weight: 220, kcal: 290, protein: 20, fat: 19, carbs: 8 },
+    { name: "Гречневая каша с молоком и маслом", weight: 260, kcal: 300, protein: 10, fat: 7, carbs: 52 },
+    { name: "Сырники из творога со сметаной", weight: 180, kcal: 350, protein: 22, fat: 12, carbs: 42 },
+    { name: "Пшенная каша с тыквой и корицей", weight: 280, kcal: 310, protein: 8, fat: 6, carbs: 58 }
+];
+
+var LUNCHES = [
+    { name: "Куриная грудка с гречкой и салатом из овощей", weight: 350, kcal: 480, protein: 42, fat: 12, carbs: 50 },
+    { name: "Говядина тушёная с рисом и овощами", weight: 360, kcal: 510, protein: 38, fat: 16, carbs: 55 },
+    { name: "Рыба (треска) запечённая с картофелем и овощами", weight: 340, kcal: 420, protein: 36, fat: 9, carbs: 48 },
+    { name: "Индейка с овощным рагу и булгуром", weight: 370, kcal: 460, protein: 40, fat: 11, carbs: 52 },
+    { name: "Суп из чечевицы с курицей и хлебом", weight: 400, kcal: 380, protein: 30, fat: 9, carbs: 48 },
+    { name: "Паста с курицей и овощами в томатном соусе", weight: 350, kcal: 500, protein: 34, fat: 14, carbs: 62 },
+    { name: "Запечённая рыба (горбуша) с овощами и рисом", weight: 350, kcal: 490, protein: 38, fat: 14, carbs: 54 }
+];
+
+var DINNERS = [
+    { name: "Куриное филе с запечёнными овощами", weight: 300, kcal: 380, protein: 40, fat: 12, carbs: 28 },
+    { name: "Рыба на пару с салатом из свежих овощей", weight: 320, kcal: 340, protein: 34, fat: 10, carbs: 26 },
+    { name: "Овощное рагу с курицей", weight: 380, kcal: 350, protein: 32, fat: 11, carbs: 32 },
+    { name: "Тушёная говядина с овощами", weight: 320, kcal: 400, protein: 35, fat: 18, carbs: 24 },
+    { name: "Запечённая индейка с салатом из капусты и моркови", weight: 330, kcal: 360, protein: 34, fat: 12, carbs: 30 },
+    { name: "Омлет с овощами и лёгким салатом", weight: 300, kcal: 320, protein: 26, fat: 19, carbs: 14 },
+    { name: "Творожная запеканка с ягодами", weight: 280, kcal: 330, protein: 28, fat: 9, carbs: 38 }
+];
+
+var SNACKS = [
+    { name: "Яблоко и горсть миндаля (20 г)", weight: 220, kcal: 180, protein: 5, fat: 12, carbs: 22 },
+    { name: "Греческий йогурт с ягодами", weight: 200, kcal: 160, protein: 14, fat: 4, carbs: 18 },
+    { name: "Бананы с орехами (30 г)", weight: 180, kcal: 220, protein: 4, fat: 12, carbs: 34 },
+    { name: "Морковные палочки с хумусом", weight: 200, kcal: 170, protein: 6, fat: 9, carbs: 20 },
+    { name: "Творог (100 г) с ломтиком цельнозернового хлеба", weight: 160, kcal: 180, protein: 18, fat: 4, carbs: 22 },
+    { name: "Груша и 15 г тёмного шоколада", weight: 200, kcal: 210, protein: 4, fat: 9, carbs: 32 },
+    { name: "Кефир 2,5% с отрубями", weight: 270, kcal: 150, protein: 11, fat: 5, carbs: 18 }
+];
+
+
+BREAKFASTS.push(
+ { name: "Йогурт натуральный с мюсли и яблоком", weight: 250, kcal: 330, protein: 12, fat: 8, carbs: 52 },
+ { name: "Бутерброд с авокадо и яйцом на цельнозерновом хлебе", weight: 220, kcal: 360, protein: 15, fat: 18, carbs: 34 },
+ { name: "Рисовая каша на воде с яблоком и корицей", weight: 270, kcal: 300, protein: 6, fat: 4, carbs: 60 },
+ { name: "Тост с лососем и огурцом", weight: 200, kcal: 330, protein: 20, fat: 12, carbs: 34 },
+ { name: "Смузи-боул с бананом, ягодами и семенами чиа", weight: 280, kcal: 310, protein: 9, fat: 9, carbs: 50 });
+LUNCHES.push(
+ { name: "Куриный суп с лапшой и овощами", weight: 400, kcal: 360, protein: 28, fat: 8, carbs: 42 },
+ { name: "Плов с индейкой", weight: 360, kcal: 520, protein: 36, fat: 15, carbs: 58 },
+ { name: "Запечённая курица с булгуром и брокколи", weight: 350, kcal: 470, protein: 42, fat: 12, carbs: 48 },
+ { name: "Тушёная чечевица с овощами и яйцом", weight: 330, kcal: 420, protein: 26, fat: 10, carbs: 56 },
+ { name: "Лосось запечённый с киноа и шпинатом", weight: 340, kcal: 520, protein: 38, fat: 20, carbs: 40 });
+DINNERS.push(
+ { name: "Куриные котлеты на пару с цветной капустой", weight: 320, kcal: 340, protein: 36, fat: 10, carbs: 24 },
+ { name: "Салат с тунцом, яйцом и огурцами", weight: 300, kcal: 310, protein: 30, fat: 16, carbs: 10 },
+ { name: "Запечённая индейка с тушёной фасолью", weight: 340, kcal: 390, protein: 38, fat: 10, carbs: 34 },
+ { name: "Кабачковые оладьи с йогуртом", weight: 280, kcal: 300, protein: 14, fat: 12, carbs: 34 },
+ { name: "Говяжий стейк с салатом из руколы и помидоров", weight: 280, kcal: 410, protein: 38, fat: 24, carbs: 10 });
+SNACKS.push(
+ { name: "Варёное яйцо и огурец", weight: 150, kcal: 110, protein: 9, fat: 7, carbs: 2 },
+ { name: "Горсть изюма и фундука (20 г)", weight: 120, kcal: 200, protein: 4, fat: 9, carbs: 28 },
+ { name: "Хлебцы цельнозерновые с авокадо", weight: 120, kcal: 190, protein: 4, fat: 11, carbs: 20 },
+ { name: "Банан и стакан кефира", weight: 250, kcal: 220, protein: 9, fat: 5, carbs: 35 },
+ { name: "Салат из свежих овощей с оливковым маслом", weight: 200, kcal: 120, protein: 2, fat: 8, carbs: 10 });
+
+/* Рецепты: "ингредиенты | приготовление" */
+var RECIPES = {
+"Овсяная каша с ягодами и мёдом": "овсяные хлопья, вода или молоко, ягоды, мёд | Варите хлопья 7–10 минут, добавьте ягоды и мёд.",
+"Яичница из 2 яиц с помидорами и зеленью": "яйца, помидор, зелень, немного масла | Обжарьте помидор 2 минуты, влейте яйца, готовьте под крышкой 3–4 минуты, посыпьте зеленью.",
+"Творог 5% с бананом и грецким орехом": "творог 5%, банан, грецкий орех | Смешайте творог с нарезанным бананом, сверху измельчённый орех.",
+"Омлет из 2 яиц с овощами и сыром": "яйца, молоко, перец, помидор, сыр | Взбейте яйца с молоком, обжарьте овощи, залейте яйцами, посыпьте сыром, готовьте под крышкой 5 минут.",
+"Гречневая каша с молоком и маслом": "гречка, молоко, сливочное масло | Сварите гречку 15–20 минут, подайте с тёплым молоком и маслом.",
+"Сырники из творога со сметаной": "творог, яйцо, мука, сметана | Смешайте творог, яйцо и муку, сформируйте сырники, обжарьте по 3 минуты с каждой стороны, подайте со сметаной.",
+"Пшенная каша с тыквой и корицей": "пшено, тыква, корица, вода | Варите пшено с кубиками тыквы 20 минут, добавьте корицу.",
+"Куриная грудка с гречкой и салатом из овощей": "куриная грудка, гречка, огурец, помидор, масло | Отварите или запеките грудку 20 минут, сварите гречку, нарежьте овощной салат.",
+"Говядина тушёная с рисом и овощами": "говядина, рис, морковь, лук, томатная паста | Тушите говядину с овощами 60 минут, отдельно сварите рис.",
+"Рыба (треска) запечённая с картофелем и овощами": "филе трески, картофель, овощи, лимон | Выложите всё на противень, запекайте 25 минут при 190 °C.",
+"Индейка с овощным рагу и булгуром": "филе индейки, кабачок, перец, помидор, булгур | Потушите овощи с кусочками индейки 25 минут, сварите булгур.",
+"Суп из чечевицы с курицей и хлебом": "красная чечевица, курица, морковь, лук, хлеб | Варите чечевицу с курицей и овощами 25 минут, подайте с хлебом.",
+"Паста с курицей и овощами в томатном соусе": "паста, курица, перец, томаты в собственном соку | Обжарьте курицу с овощами, добавьте томаты и тушите 10 минут, смешайте с пастой.",
+"Запечённая рыба (горбуша) с овощами и рисом": "горбуша, овощи, рис, лимон | Запекайте рыбу с овощами 20 минут при 190 °C, сварите рис.",
+"Куриное филе с запечёнными овощами": "куриное филе, брокколи, морковь, кабачок, специи | Запекайте филе с овощами 25 минут при 200 °C.",
+"Рыба на пару с салатом из свежих овощей": "белая рыба, огурец, помидор, зелень, лимон | Готовьте рыбу на пару 12–15 минут, подайте с салатом.",
+"Овощное рагу с курицей": "курица, кабачок, баклажан, перец, помидор | Обжарьте курицу, добавьте овощи и тушите 25 минут.",
+"Тушёная говядина с овощами": "говядина, морковь, лук, капуста | Тушите говядину с овощами под крышкой 50–60 минут.",
+"Запечённая индейка с салатом из капусты и моркови": "филе индейки, капуста, морковь, масло | Запекайте индейку 30 минут, нашинкуйте салат и заправьте маслом.",
+"Омлет с овощами и лёгким салатом": "яйца, помидор, перец, салатные листья | Приготовьте омлет с овощами, подайте со свежим салатом.",
+"Творожная запеканка с ягодами": "творог, яйцо, манка, ягоды | Смешайте творог, яйцо и манку, добавьте ягоды, запекайте 30 минут при 180 °C.",
+"Яблоко и горсть миндаля (20 г)": "яблоко, миндаль | Нарежьте яблоко, подайте с миндалём.",
+"Греческий йогурт с ягодами": "греческий йогурт, ягоды | Смешайте йогурт с ягодами.",
+"Бананы с орехами (30 г)": "банан, орехи | Нарежьте банан и посыпьте измельчёнными орехами.",
+"Морковные палочки с хумусом": "морковь, хумус | Нарежьте морковь палочками, подайте с хумусом.",
+"Творог (100 г) с ломтиком цельнозернового хлеба": "творог, цельнозерновой хлеб | Намажьте творог на хлеб.",
+"Груша и 15 г тёмного шоколада": "груша, тёмный шоколад | Подайте грушу с долькой шоколада.",
+"Кефир 2,5% с отрубями": "кефир 2,5%, пшеничные отруби | Размешайте отруби в кефире и дайте настояться 5 минут.",
+"Йогурт натуральный с мюсли и яблоком": "натуральный йогурт, мюсли, яблоко | Смешайте йогурт с мюсли и тёртым яблоком.",
+"Бутерброд с авокадо и яйцом на цельнозерновом хлебе": "цельнозерновой хлеб, авокадо, яйцо | Сварите яйцо 8 минут, разомните авокадо на тосте, сверху яйцо.",
+"Рисовая каша на воде с яблоком и корицей": "рис, вода, яблоко, корица | Варите рис 20 минут, добавьте яблоко и корицу.",
+"Тост с лососем и огурцом": "цельнозерновой хлеб, слабосолёный лосось, огурец | Подсушите хлеб, выложите огурец и лосось.",
+"Смузи-боул с бананом, ягодами и семенами чиа": "банан, ягоды, молоко или йогурт, семена чиа | Взбейте банан и ягоды с жидкостью, сверху семена чиа.",
+"Куриный суп с лапшой и овощами": "курица, лапша, морковь, лук, зелень | Сварите бульон 25 минут, добавьте овощи и лапшу на 7 минут.",
+"Плов с индейкой": "индейка, рис, морковь, лук, специи | Обжарьте индейку с овощами, добавьте рис и воду, готовьте под крышкой 25 минут.",
+"Запечённая курица с булгуром и брокколи": "куриное бедро или грудка, булгур, брокколи | Запекайте курицу 30 минут, сварите булгур, приготовьте брокколи на пару.",
+"Тушёная чечевица с овощами и яйцом": "чечевица, морковь, лук, помидор, яйцо | Тушите чечевицу с овощами 20 минут, подайте с варёным яйцом.",
+"Лосось запечённый с киноа и шпинатом": "филе лосося, киноа, шпинат, лимон | Запекайте лосося 15 минут при 200 °C, сварите киноа, добавьте шпинат.",
+"Куриные котлеты на пару с цветной капустой": "куриный фарш, лук, цветная капуста | Сформируйте котлеты, готовьте на пару 20 минут вместе с капустой.",
+"Салат с тунцом, яйцом и огурцами": "тунец в собственном соку, яйцо, огурец, салатные листья | Смешайте все ингредиенты, заправьте лимонным соком и маслом.",
+"Запечённая индейка с тушёной фасолью": "филе индейки, стручковая фасоль, томаты | Запекайте индейку 30 минут, фасоль тушите 10 минут с томатами.",
+"Кабачковые оладьи с йогуртом": "кабачок, яйцо, мука, йогурт | Натрите кабачок, отожмите, смешайте с яйцом и мукой, обжарьте, подайте с йогуртом.",
+"Говяжий стейк с салатом из руколы и помидоров": "говяжий стейк, руккола, помидоры, масло | Обжарьте стейк по 3–4 минуты с каждой стороны, подайте с салатом.",
+"Варёное яйцо и огурец": "яйцо, огурец | Сварите яйцо 8 минут, подайте с огурцом.",
+"Горсть изюма и фундука (20 г)": "изюм, фундук | Смешайте изюм и фундук.",
+"Хлебцы цельнозерновые с авокадо": "цельнозерновые хлебцы, авокадо | Разомните авокадо и намажьте на хлебцы.",
+"Банан и стакан кефира": "банан, кефир | Подайте банан со стаканом кефира.",
+"Салат из свежих овощей с оливковым маслом": "огурец, помидор, зелень, оливковое масло | Нарежьте овощи, заправьте маслом."
+};
+[BREAKFASTS, LUNCHES, DINNERS, SNACKS].forEach(function (pool) {
+    pool.forEach(function (d) { if (RECIPES[d.name]) d.recipe = RECIPES[d.name]; });
+});
+
+/* ---------------- Проверка ограничений ---------------- */
+function checkRestrictions(mealName, restrictions) {
+    if (!restrictions) return true;
+    mealName = mealName.toLowerCase();
+    restrictions = restrictions.toLowerCase();
+    var blocked = new Set();
+    if (/молоч|лактоз/.test(restrictions)) {
+        ["молок","творог","сметан","кефир","сыр","сливк","йогурт"].forEach(function(w){ blocked.add(w); });
+    }
+    if (/глютен|пшениц/.test(restrictions)) {
+        ["овсян","гречк","булгур","хлеб","паст","пшен","манн","мюсли","лапш","тост"].forEach(function(w){ blocked.add(w); });
+    }
+    if (/орех/.test(restrictions)) {
+        ["орех","миндал","грецк","фундук"].forEach(function(w){ blocked.add(w); });
+    }
+    if (/рыб/.test(restrictions)) {
+        ["рыба","треск","горбуш","лосос","тунц"].forEach(function(w){ blocked.add(w); });
+    }
+    if (/яйц/.test(restrictions)) {
+        ["яйц","омлет","яичниц"].forEach(function(w){ blocked.add(w); });
+    }
+    var blockedArray = Array.from(blocked);
+    for (var i = 0; i < blockedArray.length; i++) {
+        if (mealName.indexOf(blockedArray[i]) !== -1) return false;
+    }
+    return true;
+}
+
+/* ---------------- Меню на неделю ---------------- */
+function buildWeekMenu(goal, restrictions, targetKcal) {
+    var t = MACRO_TARGETS[goal];
+    var slots = [["Завтрак", BREAKFASTS, "b"], ["Обед", LUNCHES, "l"], ["Ужин", DINNERS, "d"], ["Перекус", SNACKS, "s"]];
+    if (goal === "набор массы") slots.push(["Перекус", SNACKS, "s"]);
+    var cand = slots.map(function (s) {
+        var r = [];
+        s[1].forEach(function (d, i) { if (checkRestrictions(d.name, restrictions)) r.push(i); });
+        if (!r.length) s[1].forEach(function (d, i) { r.push(i); });
+        return r;
+    });
+    var used = {}, week = [];
+
+    function score(choice) {
+        var p = 0, f = 0, c = 0, pen = 0;
+        choice.forEach(function (ix, k) {
+            var d = slots[k][1][ix];
+            p += d.protein * KCAL_P; f += d.fat * KCAL_F; c += d.carbs * KCAL_C;
+            pen += 0.04 * (used[slots[k][2] + ix] || 0);
+        });
+        var s = p + f + c;
+        return Math.abs(p / s - t.protein) + Math.abs(f / s - t.fat) + Math.abs(c / s - t.carbs) + pen;
+    }
+
+    for (var day = 0; day < 7; day++) {
+        var best = null, bestScore = 1e9, cur = [];
+        (function rec(k) {
+            if (k === slots.length) {
+                var sc = score(cur);
+                if (sc < bestScore) { bestScore = sc; best = cur.slice(); }
+                return;
+            }
+            cand[k].forEach(function (ix) {
+                if (k === 4 && cur[3] === ix && cand[k].length > 1) return;
+                cur[k] = ix; rec(k + 1);
+            });
+        })(0);
+        best.forEach(function (ix, k) { var key = slots[k][2] + ix; used[key] = (used[key] || 0) + 1; });
+        var meals = best.map(function (ix, k) {
+            return [slots[k][0], JSON.parse(JSON.stringify(slots[k][1][ix]))];
+        });
+
+        if (targetKcal) {
+            var baseTotal = 0;
+            meals.forEach(function (pair) { baseTotal += pair[1].kcal; });
+            var factor = targetKcal / baseTotal;
+            meals.forEach(function (pair) {
+                var m = pair[1];
+                m.weight = Math.round(m.weight * factor);
+                m.kcal = Math.round(m.kcal * factor);
+                m.protein = Math.round(m.protein * factor);
+                m.fat = Math.round(m.fat * factor);
+                m.carbs = Math.round(m.carbs * factor);
+            });
+        }
+        var tk = 0, tp = 0, tf = 0, tc = 0;
+        meals.forEach(function (pair) {
+            tk += pair[1].kcal; tp += pair[1].protein; tf += pair[1].fat; tc += pair[1].carbs;
+        });
+        week.push({ meals: meals, totals: { kcal: tk, protein: tp, fat: tf, carbs: tc } });
+    }
+    return week;
+}
+
+</script>
+<script>
+/* Логика интерфейса */
+(function () {
+    var goal = "снижение веса";
+
+    // Переключение карточек цели
+    var goalButtons = document.querySelectorAll(".goal-card");
+    goalButtons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            goalButtons.forEach(function (b) { b.classList.remove("active"); });
+            btn.classList.add("active");
+            goal = btn.getAttribute("data-goal");
+        });
+    });
+
+    // Расчёт
+    document.getElementById("btn-calc").addEventListener("click", function () {
+        var gender = document.getElementById("gender").value;
+        var age = parseInt(document.getElementById("age").value, 10);
+        var height = parseInt(document.getElementById("height").value, 10);
+        var weight = parseInt(document.getElementById("weight").value, 10);
+        var activityKey = document.getElementById("activity").value;
+        var restrictions = document.getElementById("restrictions").value.trim();
+
+        var errBox = document.getElementById("form-error");
+        function showErr(msg) { errBox.textContent = msg; errBox.classList.remove("hidden"); }
+        errBox.classList.add("hidden");
+
+        if (!age || age < 10 || age > 100) return showErr("Введите корректный возраст (10–100 лет)");
+        if (!height || height < 100 || height > 250) return showErr("Введите корректный рост (100–250 см)");
+        if (!weight || weight < 30 || weight > 300) return showErr("Введите корректный вес (30–300 кг)");
+
+        var activityFactor = ACTIVITY_LEVELS[activityKey].value;
+        var bmr = calcBMR(gender, age, height, weight);
+        var maintenance = bmr * activityFactor;
+
+        var adjusted;
+        if (goal === "снижение веса") adjusted = maintenance * 0.85;
+        else if (goal === "набор массы") adjusted = maintenance * 1.125;
+        else adjusted = maintenance;
+
+        var macros = calcMacros(adjusted, goal);
+
+        // Заполнить верхние блоки
+        document.getElementById("res-bmr").textContent = Math.round(bmr);
+        document.getElementById("res-maintenance").textContent = Math.round(maintenance);
+        document.getElementById("res-adjusted").textContent = Math.round(adjusted);
+
+        document.getElementById("res-protein").textContent = macros.protein + " г";
+        document.getElementById("res-protein-kcal").textContent = macros.proteinKcal + " ккал";
+        document.getElementById("res-fat").textContent = macros.fat + " г";
+        document.getElementById("res-fat-kcal").textContent = macros.fatKcal + " ккал";
+        document.getElementById("res-carbs").textContent = macros.carbs + " г";
+        document.getElementById("res-carbs-kcal").textContent = macros.carbsKcal + " ккал";
+
+        // Меню
+        var week = buildWeekMenu(goal, restrictions, adjusted);
+        renderMenu(week, adjusted);
+        renderSummary(week, adjusted);
+        window.__calc = { goal: goal, restrictions: restrictions, adjusted: adjusted, macros: macros, week: week };
+        window.__render = function (w, a) { renderMenu(w, a); renderSummary(w, a); };
+        var aiSt = document.getElementById('ai-status'); if (aiSt) aiSt.textContent = '';
+
+        // Показать экран результата
+        document.getElementById("screen-form").classList.add("hidden");
+        document.getElementById("screen-result").classList.remove("hidden");
+        window.scrollTo(0, 0);
+    });
+
+    // Кнопка назад
+    document.getElementById("btn-back").addEventListener("click", function () {
+        document.getElementById("screen-result").classList.add("hidden");
+        document.getElementById("screen-form").classList.remove("hidden");
+        window.scrollTo(0, 0);
+    });
+
+    function renderMenu(week, adjusted) {
+        var wrap = document.getElementById("menu-list");
+        var html = "";
+        week.forEach(function (day, idx) {
+            var open = idx === 0 ? " open" : "";
+            html += '<details class="day"' + open + '>';
+            html += '<summary><span class="day-num">День ' + (idx + 1) + '</span>' +
+                    '<span class="day-total">' + day.totals.kcal + ' ккал</span></summary>';
+            html += '<div class="day-meals">';
+            day.meals.forEach(function (pair) {
+                var label = pair[0], m = pair[1];
+                html += '<div class="meal">';
+                html += '<span class="meal-label">' + label + '</span>';
+                html += '<div class="meal-name">' + m.name + '</div>';
+                html += '<div class="meal-meta">';
+                html += '<span class="chip">Вес: ' + m.weight + ' г</span>';
+                html += '<span class="chip chip-kcal">' + m.kcal + ' ккал</span>';
+                html += '<span class="chip">Б: ' + m.protein + ' г</span>';
+                html += '<span class="chip">Ж: ' + m.fat + ' г</span>';
+                html += '<span class="chip">У: ' + m.carbs + ' г</span>';
+                html += '</div>';
+                if (m.recipe) {
+                    var parts = m.recipe.split(' | ');
+                    html += '<details class="recipe"><summary>Рецепт</summary><p><b>Ингредиенты:</b> ' + parts[0] + '.</p><p><b>Приготовление:</b> ' + parts[1] + '</p></details>';
+                }
+                html += '</div>';
+            });
+            html += '</div></details>';
+        });
+        wrap.innerHTML = html;
+    }
+
+    function renderSummary(week, adjusted) {
+        var tbody = document.getElementById("summary-body");
+        var html = "";
+        week.forEach(function (day, idx) {
+            var t = day.totals;
+            var ok = Math.abs(t.kcal - adjusted) <= 0.15 * adjusted;
+            html += '<tr>';
+            html += '<td>' + (idx + 1) + '</td>';
+            html += '<td>' + t.kcal + '</td>';
+            html += '<td>' + t.protein + '</td>';
+            html += '<td>' + t.fat + '</td>';
+            html += '<td>' + t.carbs + '</td>';
+            html += '<td><span class="ok-badge ' + (ok ? "yes" : "no") + '">' + (ok ? "Да" : "Нет") + '</span></td>';
+            html += '</tr>';
+        });
+        tbody.innerHTML = html;
+    }
+})();
+
+</script>
+
+<script>
+(function () {
+    var QUESTIONS = [
+        { q: "Какая у вас главная цель сейчас?", opts: [
+            { t: "Похудеть", tag: "Снижение веса" },
+            { t: "Набрать мышечную массу", tag: "Набор массы" },
+            { t: "Больше энергии и лучшее самочувствие", tag: "Энергия и самочувствие" },
+            { t: "Наладить питание всей семьи", tag: "Питание для семьи" } ] },
+        { q: "Что мешает больше всего?", opts: [
+            { t: "Нет времени готовить", tag: "Быстрые рецепты и заготовки" },
+            { t: "Срываюсь на сладкое и перекусы", tag: "Срывы и тяга к сладкому" },
+            { t: "Не знаю, что и как правильно есть", tag: "Основы здорового питания" },
+            { t: "Есть проблемы со здоровьем", tag: "Питание при проблемах со здоровьем" } ] },
+        { q: "Что уже пробовали?", opts: [
+            { t: "Диеты и голодание", tag: "Опыт строгих диет" },
+            { t: "Считал калории сам", tag: "Подсчёт калорий и БЖУ" },
+            { t: "Занимался с тренером", tag: "Питание под тренировки" },
+            { t: "Пока ничего", tag: "Старт с нуля" } ] },
+        { q: "Что хотели бы получить от нутрициолога?", opts: [
+            { t: "Готовое меню на неделю", tag: "Готовое меню" },
+            { t: "Разбор анализов и самочувствия", tag: "Разбор анализов" },
+            { t: "Постоянное сопровождение и контроль", tag: "Сопровождение" },
+            { t: "Рецепты и список покупок", tag: "Рецепты и список покупок" } ] }
+    ];
+    var step = 0, answers = [];
+    var body = document.getElementById("quiz-body");
+
+    function renderQuestion() {
+        var item = QUESTIONS[step];
+        var html = '<div class="quiz-progress"><div class="quiz-progress-bar" style="width:' + (step / QUESTIONS.length * 100) + '%"></div></div>';
+        html += '<div class="quiz-step">Вопрос ' + (step + 1) + ' из ' + QUESTIONS.length + '</div>';
+        html += '<div class="quiz-q">' + item.q + '</div><div class="quiz-options">';
+        item.opts.forEach(function (o, i) {
+            html += '<button type="button" class="quiz-opt" data-i="' + i + '">' + o.t + '</button>';
+        });
+        html += '</div>';
+        body.innerHTML = html;
+        body.querySelectorAll(".quiz-opt").forEach(function (b) {
+            b.addEventListener("click", function () {
+                b.classList.add("picked");
+                answers.push(item.opts[parseInt(b.getAttribute("data-i"), 10)]);
+                step++;
+                setTimeout(function () { step < QUESTIONS.length ? renderQuestion() : renderResult(); }, 180);
+            });
+        });
+    }
+
+    function renderResult() {
+        var html = '<div class="quiz-progress"><div class="quiz-progress-bar" style="width:100%"></div></div>';
+        html += '<div class="quiz-result"><h3>Спасибо! Вот что вам важно</h3>';
+        html += '<p>По вашим ответам вас больше всего интересует:</p><div class="quiz-tags">';
+        answers.forEach(function (a) { html += '<span class="quiz-tag">' + a.tag + '</span>'; });
+        html += '</div><div class="quiz-prize">🎁 Ваш приз: бесплатная мини-консультация нутрициолога</div>';
+        var msg = "Здравствуйте! Прошёл(а) квиз на сайте. Меня интересует: " +
+            answers.map(function (a) { return a.tag; }).join(", ") +
+            ". Хочу получить консультацию нутрициолога.";
+        var em = encodeURIComponent(msg);
+        html += '<div class="contact-title">Получить консультацию — напишите нам:</div>';
+        html += '<div class="contact-grid">';
+        html += '<a class="contact-btn mail" href="mailto:goga.fedotov.2025@bk.ru?subject=' + encodeURIComponent("Консультация нутрициолога") + '&body=' + em + '">✉️ Почта</a>';
+        html += '<a class="contact-btn wa" href="https://wa.me/79952552674?text=' + em + '" target="_blank" rel="noopener">WhatsApp</a>';
+        html += '<a class="contact-btn tg" href="https://t.me/internet987?text=' + em + '" target="_blank" rel="noopener">Telegram</a>';
+        html += '<a class="contact-btn max" href="https://max.ru/id575307462228_bot" target="_blank" rel="noopener">MAX</a>';
+        html += '</div>';
+        html += '<button type="button" class="contact-btn contact-copy" id="quiz-copy">📋 Скопировать мои ответы</button>';
+        html += '<div class="contact-hint">В Telegram и MAX вставьте скопированные ответы в сообщение.</div>';
+        html += '<div class="contact-title">Или оставьте заявку — мы свяжемся с вами:</div>';
+        html += '<input type="text" class="lead-input" id="lead-name" placeholder="Ваше имя" maxlength="80">';
+        html += '<input type="text" class="lead-input" id="lead-contact" placeholder="Телефон, почта или Telegram" maxlength="120">';
+        html += '<button type="button" class="btn" id="lead-send" style="margin-top:0">Получить консультацию</button>';
+        html += '<div class="lead-status" id="lead-status"></div>';
+        html += '<div class="lead-note">Отправляя заявку, вы соглашаетесь на обработку персональных данных.</div>';
+        html += '<p style="margin-top:16px">Теперь рассчитайте свою норму калорий и получите меню на неделю.</p>';
+        html += '<button type="button" class="btn" id="quiz-to-calc">К калькулятору калорий</button>';
+        html += '<button type="button" class="quiz-link" id="quiz-restart">Пройти заново</button></div>';
+        body.innerHTML = html;
+        document.getElementById("quiz-copy").addEventListener("click", function () {
+            var btn = this;
+            function done(ok) { btn.textContent = ok ? "✅ Скопировано" : "Не удалось скопировать"; }
+            try {
+                navigator.clipboard.writeText(msg).then(function () { done(true); }, function () { done(false); });
+            } catch (e) { done(false); }
+        });
+        document.getElementById("lead-send").addEventListener("click", function () {
+            var sendBtn = this;
+            var status = document.getElementById("lead-status");
+            var name = document.getElementById("lead-name").value.trim();
+            var contact = document.getElementById("lead-contact").value.trim();
+            status.className = "lead-status";
+            if (!contact) { status.className = "lead-status err"; status.textContent = "Укажите, как с вами связаться."; return; }
+            sendBtn.disabled = true;
+            status.textContent = "Отправляем…";
+            fetch("https://formspree.io/f/xvkgnekq", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                body: JSON.stringify({
+                    name: name,
+                    contact: contact,
+                    quiz_interests: answers.map(function (a) { return a.tag; }).join(", "),
+                    message: msg
+                })
+            }).then(function (r) {
+                if (!r.ok) throw new Error(r.status);
+                status.className = "lead-status ok";
+                status.textContent = "Спасибо! Заявка отправлена, мы скоро свяжемся с вами.";
+            }).catch(function () {
+                sendBtn.disabled = false;
+                status.className = "lead-status err";
+                status.textContent = "Не удалось отправить. Попробуйте ещё раз или напишите нам в мессенджер.";
+            });
+        });
+        document.getElementById("quiz-to-calc").addEventListener("click", closeQuiz);
+        document.getElementById("quiz-restart").addEventListener("click", function () {
+            step = 0; answers = []; renderQuestion();
+        });
+    }
+
+    function show(id) {
+        ["screen-form", "screen-result", "screen-quiz"].forEach(function (s) {
+            document.getElementById(s).classList.toggle("hidden", s !== id);
+        });
+        window.scrollTo(0, 0);
+    }
+    function openQuiz() { step = 0; answers = []; renderQuestion(); show("screen-quiz"); }
+    function closeQuiz() { show("screen-form"); }
+
+    document.getElementById("btn-quiz-start").addEventListener("click", openQuiz);
+    document.getElementById("promo-link").addEventListener("click", function (e) { e.preventDefault(); openQuiz(); });
+    document.getElementById("btn-quiz-back").addEventListener("click", closeQuiz);
+})();
+</script>
+
+<script>
+(function () {
+    var btn = document.getElementById("btn-ai");
+    var st = document.getElementById("ai-status");
+    function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+    function toMeal(m) {
+        return [esc(m.label), {
+            name: esc(m.name), weight: m.weight, kcal: m.kcal, protein: m.protein, fat: m.fat, carbs: m.carbs,
+            recipe: esc(m.ingredients.join(", ")) + " | " + esc(m.steps.join(" "))
+        }];
+    }
+    btn.addEventListener("click", function () {
+        var c = window.__calc;
+        if (!c) return;
+        btn.disabled = true;
+        st.textContent = "ИИ составляет меню, это займёт около 10–20 секунд…";
+        var week = c.week.slice();
+        var ok = 0;
+        var jobs = [];
+        for (var d = 0; d < 7; d++) {
+            (function (day) {
+                jobs.push(fetch("/api/menu", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ day: day + 1, goal: c.goal, kcal: Math.round(c.adjusted),
+                        protein: c.macros.protein, fat: c.macros.fat, carbs: c.macros.carbs, restrictions: c.restrictions })
+                }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+                .then(function (data) {
+                    var meals = data.meals.map(toMeal);
+                    var t = { kcal: 0, protein: 0, fat: 0, carbs: 0 };
+                    meals.forEach(function (p) { t.kcal += p[1].kcal; t.protein += p[1].protein; t.fat += p[1].fat; t.carbs += p[1].carbs; });
+                    week[day] = { meals: meals, totals: t };
+                    ok++;
+                }).catch(function () {}));
+            })(d);
+        }
+        Promise.all(jobs).then(function () {
+            window.__render(week, c.adjusted);
+            btn.disabled = false;
+            st.textContent = ok === 7 ? "Меню составлено ИИ и носит ориентировочный характер."
+                : ok === 0 ? "ИИ сейчас недоступен — показано меню из базы."
+                : "ИИ составил " + ok + " из 7 дней, остальные взяты из базы. Данные ориентировочные.";
+        });
+    });
+})();
+</script>
+
+
+<script>
+(function () {
+    var saveBtn = document.getElementById("btn-save");
+    var note = document.getElementById("save-note");
+
+    function buildDoc(c) {
+        var h = '<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+            '<title>Меню на неделю</title><style>body{font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;max-width:760px;margin:0 auto;padding:20px;color:#2d3a4b;line-height:1.5}' +
+            'h1{color:#2b8a5e;font-size:24px;margin-bottom:4px}.sub{color:#4a5b6e;margin-bottom:18px}.day{border:1px solid #dbe4ee;border-radius:12px;padding:12px 16px;margin-bottom:14px;break-inside:avoid}' +
+            '.day h2{font-size:17px;color:#2b8a5e;margin:0 0 8px}.meal{padding:8px 0;border-top:1px solid #eef2f8}.meal:first-of-type{border-top:none}.lab{font-size:11px;font-weight:700;text-transform:uppercase;color:#2b8a5e}' +
+            '.nm{font-weight:700}.meta{font-size:13px;color:#5a6b7e}.rc{font-size:13px;color:#4a5b6e;margin-top:4px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid #dbe4ee;padding:6px;text-align:center}th{background:#eaf7f1;color:#2b8a5e}</style></head><body>';
+        h += '<h1>Нутрициолог — меню на 7 дней</h1><div class="sub">Цель: ' + c.goal + ' · норма ' + Math.round(c.adjusted) + ' ккал · Б ' + c.macros.protein + ' г / Ж ' + c.macros.fat + ' г / У ' + c.macros.carbs + ' г · ' + new Date().toLocaleDateString("ru-RU") + '</div>';
+        c.week.forEach(function (day, i) {
+            h += '<div class="day"><h2>День ' + (i + 1) + ' — ' + day.totals.kcal + ' ккал</h2>';
+            day.meals.forEach(function (pair) {
+                var m = pair[1];
+                h += '<div class="meal"><div class="lab">' + pair[0] + '</div><div class="nm">' + m.name + '</div><div class="meta">' + m.weight + ' г · ' + m.kcal + ' ккал · Б ' + m.protein + ' · Ж ' + m.fat + ' · У ' + m.carbs + '</div>';
+                if (m.recipe) { var p = m.recipe.split(" | "); h += '<div class="rc"><b>Ингредиенты:</b> ' + p[0] + '. <b>Приготовление:</b> ' + (p[1] || "") + '</div>'; }
+                h += '</div>';
+            });
+            h += '</div>';
+        });
+        h += '<table><tr><th>День</th><th>ккал</th><th>Б</th><th>Ж</th><th>У</th></tr>';
+        c.week.forEach(function (d, i) { var t = d.totals; h += '<tr><td>' + (i + 1) + '</td><td>' + t.kcal + '</td><td>' + t.protein + '</td><td>' + t.fat + '</td><td>' + t.carbs + '</td></tr>'; });
+        h += '</table><p class="meta" style="margin-top:14px">Рекомендации ориентировочные и не заменяют консультацию специалиста.</p></body></html>';
+        return h;
+    }
+
+    async function saveFile(name, text) {
+        try {
+            if (window.claude && window.claude.use) {
+                var dl = await window.claude.use("downloads");
+                if (dl) { await dl.save({ filename: name, data: text }); return true; }
+            }
+        } catch (e) { if (e && e.code === "declined") return true; }
+        try {
+            var blob = new Blob([text], { type: "text/html;charset=utf-8" });
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(blob); a.download = name;
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+            return true;
+        } catch (e2) { return false; }
+    }
+
+    saveBtn.addEventListener("click", async function () {
+        if (!window.__calc) return;
+        note.textContent = "Готовим файл…";
+        var ok = await saveFile("menu-na-nedelyu.html", buildDoc(window.__calc));
+        note.textContent = ok ? "Файл menu-na-nedelyu.html сохранён. Откройте его в браузере; при необходимости распечатайте или сохраните как PDF."
+                              : "Не удалось сохранить файл. Попробуйте кнопку печати ниже.";
+    });
+})();
+</script>
+</body>
+</html>
